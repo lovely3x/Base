@@ -1,5 +1,5 @@
 
-### 1.以下代码有问题吗，是什么问题？
+### **1.以下代码有问题吗，是什么问题？**
 1.1
 ```java
 List<Object> obj = new ArrayList<Long>();
@@ -12,17 +12,19 @@ Object[] objArray = new Long[1];
 objArray[0] = "I love Android!";
 ```
 
-结果:   
-1.1 编译出错   
-1.2 编译可以，运行出错
+结果：
+1.1 编译出错。
 
-原因：   
-1.1 List\<Object\>和ArrayList\<Long\>没有继承关系
-1.2 数组是在运行时类型检查
+1.2 编译可以，运行出错。
 
-考察点：泛型、数组
+原因：
+1.1 `List\<Object\>`和`ArrayList\<Long\>`没有继承关系。
 
-### 2.以下代码运行结果？
+1.2 数组是在运行时类型检查。
+
+考察点：泛型、数组。
+
+### **2.以下代码运行结果？**
 2.1
 ```java
 Long l1 = 128L;
@@ -40,16 +42,18 @@ System.out.print(l1 == 127L);
 ```
 
 结果：   
-2.1 false  true   
-2.2 true  true
+2.1 false  true。   
 
-原因：   
-2.1 l1和l2是两个对象，==比较的是对象的地址，所以false。Long l1== 128L中l1转值比较，所以true。   
-2.2 -128 - 127之间的值，Java维护在一个常量池中，所以l1和l2引用同一个对象。
+2.2 true  true。
+
+原因：  
+2.1 Long 包装类型常量 cache 为 -128 ～ 127 之间，所以 l1 和 l2 是两个对象，== 比较的是对象的地址，所以第一个打印为 false；接着由于包装类型在表达式中且表达式中至少有一个不是包装类型，所以 Long l1== 128L 中 l1 自动拆箱比较，所以数值比较为 true。
+
+2.2 Long 包装类型 -128 - 127 之间的值 Java 维护在一个常量池中，所以 l1 和 l2 引用同一个对象。
 
 考察点：常量池、==、自动装箱拆箱
 
-### 3.程序可以编译运行吗，结果是神马？
+### **3.程序可以编译运行吗，结果是神马？**
 ```java
 List<String>[] list = new List<String>[3];
 ```
@@ -60,18 +64,18 @@ List<String>[] list = new List<String>[3];
 原因：	
 创建泛型、参数化类型或者类型参数的数组是非法的，都会导致编译错误。
 
-考察点：Java默认是没有泛型数组的。
+考察点：Java 默认是没有泛型数组的
 
-### 4.是否存在使 i>j || i<=j 结果为false的数吗？
+### **4.是否存在使 `i>j || i<=j` 结果为 false 的数吗？**
 结果：	
 存在。
   
 原因：	
-数值NaN代表not a number，无法用于比较，例如即使是 i = Double.NaN; j = i; 最后i == j的结果依旧为false。
+数值 `NaN` 代表 not a number，无法用于比较，例如即使是 `i = Double.NaN; j = i;` 最后 `i == j` 的结果依旧为 false。
   
-考察点：Java基础知识点NaN。
+考察点：Java NaN。
 
-### 5.程序运行结果？
+### **5.下面程序的运行结果是什么？**
 ```java
 public class Main {
 
@@ -81,11 +85,9 @@ public class Main {
         new Thread(txtThread).start();
         new Thread(txtThread).start();
         new Thread(txtThread).start();
-
     }
 
     static class TxtThread implements Runnable {
-
         int num = 100;
         String str = new String();
 
@@ -113,34 +115,28 @@ Thread-0 this is 100
 Thread-0 this is 1	
 
 原因：	
-三个线程共享对一个Runnable对象，所以同步锁中其他两个线程没有执行机会。
+三个线程共享对一个 Runnable 对象，所以同步锁中其他两个线程没有执行机会。
 
 考察点：	
-Thread,Runnable,同步。
+Thread, Runnable, 同步。
 
-### 6.Java的垃圾回收面试题
+### **6.下面这段代码中，第几行的 fobj/sobj 符合垃圾收集器的收集标准？**
 6.1
 ```java
- 1．fobj = new Object ( ) ;   
- 2．fobj. Method ( ) ;   
- 3．fobj = new Object ( ) ;   
- 4．fobj. Method ( ) ;   
+ 1．fobj = new Object();   
+ 2．fobj.Method();   
+ 3．fobj = new Object();   
+ 4．fobj.Method();   
 ```
-问：这段代码中，第几行的fobj 符合垃圾收集器的收集标准？	
- 
-答：第3行。因为第3行的fobj被赋了新值，产生了一个新的对象，即换了一块新的内存空间，也相当于为第1行中的fobj赋了null值。这种类型的题是最简单的。 
 
 6.2
 ```java
-1．Object sobj = new Object ( ) ;   
-2．Object sobj = null ;   
-3．Object sobj = new Object ( ) ;   
-4．sobj = new Object ( ) ;   
+1．Object sobj = new Object();   
+2．Object sobj = null;   
+3．Object sobj = new Object();   
+4．sobj = new Object();   
 ```
-问：这段代码中，第几行的内存空间符合垃圾收集器的收集标准？ 	
-
-答：第2行和第4行。因为第2行为sobj赋值为null，所以在此第1行的sobj符合垃圾收集器的收集标准。而第4行相当于为sobj赋值为null，所以在此第3行的sobj也符合垃圾收集器的收集标准。
-
+ 	
 6.3
 ```java
 1．Object aobj = new Object ( ) ;   
@@ -151,18 +147,19 @@ Thread,Runnable,同步。
 6．cobj = null;   
 7．aobj = null; 
 ```
-问：这段代码中，第几行的内存空间符合垃圾收集器的收集标准？ 
 
-答：第4，7行。注意这类题型是认证考试中可能遇到的最难题型了。 
-行1-3：分别创建了Object类的三个对象：aobj，bobj，cobj。
-行4：此时对象aobj的句柄指向bobj，原来aojb指向的对象已经没有任何引用或变量指向，这时，就符合回收标准。
-行5：此时对象aobj的句柄指向cobj，所以该行的执行不能使aobj符合垃圾收集器的收集标准。 
-行6：此时仍没有任何一个对象符合垃圾收集器的收集标准。 
-行7：对象cobj符合了垃圾收集器的收集标准，因为cobj的句柄指向单一的地址空间。在第6行的时候，cobj已经被赋值为null，但由cobj同时还指向了aobj（第5行），所以此时cobj并不符合垃圾收集器的收集标准。而在第7行，aobj所指向的地址空间也被赋予了空值null，这就说明了，由cobj所指向的地址空间已经被完全地赋予了空值。所以此时cobj最终符合了垃圾收集器的收集标准。 但对于aobj和bobj，仍然无法判断其是否符合收集标准。总之，在Java语言中，判断一块内存空间是否符合垃圾收集器收集的标准只有两个： 
-1．给对象赋予了空值null，以下再没有调用过。 
-2．给对象赋予了新值，既重新分配了内存空间。 
+结果及原因：
+ 
+6-1、第 3 行。因为第 3 行的 fobj 被赋了新值，产生了一个新的对象，即换了一块新的内存空间，也相当于为第 1 行中的 fobj 断开了引用，这种类型的题是最简单的。 
 
-### 7.以下程序运行的结果是神马？
+6-2、第 2、4 行。因为第 2 行为 sobj 赋值为 null，所以在此第 1 行的 sobj 符合垃圾收集器的收集标准。而第 4 行相当于为 sobj 赋值为 null，所以在此第 3 行的 sobj 也符合垃圾收集器的收集标准。 
+
+6-3、第 4、7 行。行 1-3 分别创建了 Object 类的三个对象aobj、bobj、cobj；行 4 此时对象 aobj 的句柄指向 bobj，原来 aojb 指向的对象已经没有任何引用或变量指向，这时，就符合回收标准了；行 5 此时对象 aobj 的句柄指向 cobj，所以该行的执行不能使 aobj 符合垃圾收集器的收集标准；行 6 此时仍没有任何一个对象符合垃圾收集器的收集标准；行 7 对象 cobj 符合了垃圾收集器的收集标准，因为 cobj 的句柄指向单一的地址空间，在第 6 行的时候 cobj 已经被赋值为 null，但由于 cobj 同时还指向了 aobj（第5行），所以此时 cobj 并不符合垃圾收集器的收集标准，而在第 7 行 aobj 所指向的地址空间也被赋予了空值 null，这就说明由 cobj 所指向的地址空间已经被完全地赋予了空值，所以此时 cobj 最终符合了垃圾收集器的收集标准，但对于 aobj 和 bobj 仍然无法判断其是否符合收集标准，总之在 Java 语言中，判断一块内存空间是否符合垃圾收集器收集的标准只有两个：给对象赋予了空值 null，以下再没有调用过；给对象赋予了新值，既重新分配了内存空间。 
+
+考察点：
+Java 引用及内存关系。
+
+### **7.以下程序运行的结果是神马？**
 ```java
 String s1 = "abc";
 StringBuffer s2 = new StringBuffer(s1);
@@ -172,7 +169,7 @@ System.out.println(s1.equals(s2));
 false。
 
 原因:	
-考String的toString方式，toString方法进行了instance of判断。
+考 String 的 toString 方式，toString 方法进行了 instance of 判断。
 
 
 ### 8.下面的题目结果是什么
