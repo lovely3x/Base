@@ -51,7 +51,7 @@ System.out.print(l1 == 127L);
 
 2.2 Long 包装类型 -128 - 127 之间的值 Java 维护在一个常量池中，所以 l1 和 l2 引用同一个对象。
 
-考察点：常量池、==、自动装箱拆箱
+考察点：常量池、==、自动装箱拆箱，还可参见第 16 题解析。
 
 ### **3.程序可以编译运行吗，结果是神马？**
 ```java
@@ -78,7 +78,6 @@ List<String>[] list = new List<String>[3];
 ### **5.下面程序的运行结果是什么？**
 ```java
 public class Main {
-
     public static void main(String[] args) {
         TxtThread txtThread = new TxtThread();
 
@@ -105,7 +104,6 @@ public class Main {
             }
         }
     }
-
 }
 ```
 结果：	
@@ -172,10 +170,9 @@ false。
 考 String 的 toString 方式，toString 方法进行了 instance of 判断。
 
 
-### 8.下面的题目结果是什么
+### **8.下面的题目结果是什么?**
 ```java
 public class TestFool {
-
     public static String foo(){
         System.out.println("Test foo called");
         return "";
@@ -183,8 +180,7 @@ public class TestFool {
 
     public static void main(String[] args) {
         TestFool obj = null;
-            System.out.println(obj.foo());
-
+        System.out.println(obj.foo());
     }
 }
 ```
@@ -192,72 +188,74 @@ public class TestFool {
 Test foo called。
 
 原因:	
-jvm内存里有栈区、堆区。栈区主要用来存放基础类型数据和局部变量，堆区主要存放new出来的对象。在堆区又有一个叫做方法区的内存区域用来存放常量、static变量和static方法，还有类的信息。static的变量和方法不依赖对象，即使对象没有创建，在类加载的时候已经存在信息了，jvm识别出是static方法就直接调用了在方法区内存里的方法，没有报空指针异常。
+jvm 内存里有栈区、堆区，栈区主要用来存放基础类型数据和局部变量，堆区主要存放 new 出来的对象。在堆区又有一个叫做方法区的内存区域用来存放常量、static 变量和 static 方法，还有类的信息，static 的变量和方法不依赖对象，即使对象没有创建，在类加载的时候已经存在信息了，jvm 识别出是 static 方法就直接调用了在方法区内存里的方法，没有报空指针异常。细节参见 10 题解析。
 
-
-### 9.以下继承关系， 运行结果是？
+### **9.以下继承关系，运行结果是？**
 ```java
-	public class Base {
-        public Base(){
-            test();
-        }
-        
-        public void test(){
-        }
+public class Base {
+    public Base(){
+        test();
     }
     
-    public class Child extends Base {
-        private int a = 123;
-        
-        public Child(){
-        }
-        
-        public void test(){
-            System.out.println(a);
-        }
+    public void test(){
+    }
+}
+
+public class Child extends Base {
+    private int a = 123;
+    
+    public Child(){
     }
     
-    public static void main(String[] args){
-        Child c = new Child();
-        c.test();
-    };
+    public void test(){
+        System.out.println(a);
+    }
+}
+
+public static void main(String[] args){
+    Child c = new Child();
+    c.test();
+}
 ```
 结果：
 0 123
 
 原因：
- Child直接继承于Base，默认构造函数不显示调用super也会直接父类的默认构造函数， 所以首先调用Base.java-->test()方法。这时Child类还没有构造完毕，a基本数据类型还没有赋予值，a又为成员变量默认值为0； 
+Child 直接继承于 Base，默认构造函数不显示调用 super 也会直接父类的默认构造函数，所以首先调用 `Base.java-->test()` 方法。这时 Child 类还没有构造完毕，a 基本数据类型还没有赋予值，a 又为成员变量默认值为 0。
+如果在父类构造方法中调用了可被重写的方法则可能会出现意想不到的效果，慎重使用，最好只调用 private 方法。
 
-### 10.以下继承关系， 运行结果是？
+### **10.以下继承关系，运行结果是？**
 ```java
-	public class Base {
-		public static String s = "static_base";
-		public String m = "base";
-		
-		public static void staticTest(){
-			System.out.println("base static: "+s);
-		}
+public class Base {
+	public static String s = "static_base";
+	public String m = "base";
+	
+	public static void staticTest(){
+		System.out.println("base static: "+s);
 	}
-	public class Child extends Base {
-		public static String s = "child_base";
-		public String m = "child";
-		
-		public static void staticTest(){
-			System.out.println("child static: "+s);
-		}
+}
+
+public class Child extends Base {
+	public static String s = "child_base";
+	public String m = "child";
+	
+	public static void staticTest(){
+		System.out.println("child static: "+s);
 	}
-	public static void main(String[] args) {
-		Child c = new Child();
-		Base b = c;
-		
-		System.out.println(b.s);
-		System.out.println(b.m);
-		b.staticTest();
-		
-		System.out.println(c.s);
-		System.out.println(c.m);
-		c.staticTest();
-	}
+}
+
+public static void main(String[] args) {
+	Child c = new Child();
+	Base b = c;
+	
+	System.out.println(b.s);
+	System.out.println(b.m);
+	b.staticTest();
+	
+	System.out.println(c.s);
+	System.out.println(c.m);
+	c.staticTest();
+}
 ```
 结果：
 static_base
@@ -267,113 +265,112 @@ child_base
 child
 child static: child_base
 
-原因：~~~
+原因：
+当通过 b 访问时访问的是 Base 的变量和方法，当通过 c 访问时访问的是 Child 的变量和方法，这就是所谓的静态绑定，即访问绑定到变量的静态类型，静态绑定在程序编译阶段即可决定，而动态绑定则要等到程序运行时，实例变量、静态变量、静态方法、private 方法都是静态绑定。
+继承重名是允许的，重名后实质有两个变量或者方法，对于 private 变量和方法，他们只能在类内被访问，访问的也永远是当前类（即子类中访问子类的，父类中访问父类的），仅仅是名字相同而已，没有任何关系；对于 public 变量和方法要看如何访问它，在类内部访问的是当前类的，单子类可以通过 super 明确指定访问父类的，在类外则要看访问变量的静态类型，静态类型是父类则访问父类的变量和方法，静态类型是子类则访问子类的变量和方法。
 
-### 11.如果出现以下代码， 在编译阶段会出现什么现象？
+### **11.如果出现以下代码，编译运行会出现什么现象？**
 ```java
-	public class Base {
-		protected void protect(){
-		}
-		
-		public void open(){        
-		}
+public class Base {
+	protected void protect(){
 	}
-	public class Child extends Base {
-		//1放开会有啥现象
-	//    private void protect(){
-	//    }
-		
-		//2放开会有啥现象
-	//    protected void open(){        
-	//    }
-		//3放开会有啥现象
-		public void protect(){        
-		}
+	
+	public void open(){        
 	}
+}
+
+public class Child extends Base {
+//1放开会有啥现象
+//    private void protect(){
+//    }
+	
+//2放开会有啥现象
+//    protected void open(){        
+//    }
+//3放开会有啥现象
+	public void protect(){        
+	}
+}
 ```
 
-现象:
+结果:
+如果 1 放开会在编译阶段报错；
 
-如果1放开， 会在编译阶段报错；
+如果 2 放开会在编译阶段报错；
 
-如果2放开， 会在编译阶段报错；
-
-如果3放开， 编译正常；
+如果 3 放开编译运行正常；
 
 原因： 
-重写方法不能比被重写方法限制有更严格的访问级别。
+重载是指方法名相同但参数签名不同，重写是指子类重写父类相同签名的方法，但是重写方法不能比被重写方法限制有更严格的访问级别（即可见性重写）。
 
-### 12.以下继承方式， 运行时会如何打印
+### **12.以下继承方式运行时会如何打印？**
 ```java
-	public class Base {
-		public static int s;
-		private int a;
+public class Base {
+	public static int s;
+	private int a;
 
-		static {
-			System.out.println("基类静态代码块, s:" + s);
-			s = 1;
-		}
-
-		{
-			System.out.println("基类实例代码块, a:" + a);
-			a = 1;
-		}
-
-		public Base() {
-			System.out.println("基类构造方法, a:" + a);
-			a = 2;
-		}
-
-		protected void step() {
-			System.out.println("base s: " + s + " , a : " + a);
-		}
-
-		public void action() {
-			System.out.println("start");
-			step();
-			System.out.println("end");
-		}
+	static {
+		System.out.println("基类静态代码块, s:" + s);
+		s = 1;
 	}
 
-
-	public class Child extends Base {
-
-		public static int s;
-		private int a;
-		static {
-			System.out.println("子类静态代码块， s:"+s);
-			s = 10;
-		}
-
-		{
-			System.out.println("子类实例代码块， a:"+a);
-			a = 10;
-		}
-
-		public Child(){
-			System.out.println("子类构造方法，a："+a);
-			a = 20;
-		}
-
-		protected  void  step(){
-			System.out.println("child s: "+s+" , a: "+a);
-		}
-
+	{
+		System.out.println("基类实例代码块, a:" + a);
+		a = 1;
 	}
 
-	public static void main(String[] args) {
-        System.out.println("------ new Child()");
-        Child c = new Child();
-        System.out.println("\n------ c.action()");
-        c.action();
+	public Base() {
+		System.out.println("基类构造方法, a:" + a);
+		a = 2;
+	}
 
-        Base b = c;
-        System.out.println("\n-------b.action()");
-        b.action();
+	protected void step() {
+		System.out.println("base s: " + s + " , a : " + a);
+	}
 
-        System.out.println("\n ------- b.s: "+b.s);
-        System.out.println("\n ------- c.s: "+c.s);
-    }
+	public void action() {
+		System.out.println("start");
+		step();
+		System.out.println("end");
+	}
+}
+
+public class Child extends Base {
+	public static int s;
+	private int a;
+	static {
+		System.out.println("子类静态代码块， s:"+s);
+		s = 10;
+	}
+
+	{
+		System.out.println("子类实例代码块， a:"+a);
+		a = 10;
+	}
+
+	public Child(){
+		System.out.println("子类构造方法，a："+a);
+		a = 20;
+	}
+
+	protected  void  step(){
+		System.out.println("child s: "+s+" , a: "+a);
+	}
+}
+
+public static void main(String[] args) {
+    System.out.println("------ new Child()");
+    Child c = new Child();
+    System.out.println("\n------ c.action()");
+    c.action();
+
+    Base b = c;
+    System.out.println("\n-------b.action()");
+    b.action();
+
+    System.out.println("\n ------- b.s: "+b.s);
+    System.out.println("\n ------- c.s: "+c.s);
+}
 ```
 
 结果:
@@ -395,43 +392,42 @@ start
 child s: 10 , a: 20
 end
 
- ------- b.s: 1
-
- ------- c.s: 10
+------- b.s: 1
+------- c.s: 10
  
 原因:
+其实考察的是 Java 类加载与初始化，加载就是在第一次使用类时动态把类加载到内存，加载一个类会看其父类是否已经加载，如果没有则会先加载父类。类加载过程如下：分配内存保存类信息->给类变量赋默认值->加载父类->设置父子关系->执行类初始化代码；而类初始化过程（先执行父类再执行子类，父类执行时子类静态变量是有默认值 0 的）如下：定义静态变量时的赋值语句->静态初始化代码块；这些 OK 以后就进入实例初始化过程：定义实例变量时的赋值语句->实例初始化代码块->构造方法。
+所以上面的结果基本就是这个流程，只是寻找要执行的实例方法时是从对象的实际类型信息开始查找的，找不到才会查父类；对于变量无论是类变量还是实例变量都是静态绑定访问的。
 
- lueluelue....
-
-### 13.内部类你知多少？
+### **13.内部类你知多少？**
 java 内部类分为几种，各种自己有哪些特性？
  
-答案：
-四中内部类： 静态内部类, 成员内部类, 方法内部类, 匿名内部类.
+结果：
+静态内部类，成员内部类，方法内部类，匿名内部类；
 
-匿名内部类访问外部类的局部变量，局部变量需要final修饰，1.8之后该关键字被省略
+匿名内部类访问外部类的局部变量，局部变量需要 final 修饰，1.8 之后该关键字被省略。
 
 方法内部类只能在定义该内部类的方法内实例化，不可以在此方法外对其实例化。
 
-静态内部类与其他成员相似，可以用static修饰内部类，这样的类称为静态内部类。静态内部类与静态内部方法相似，只能访问外部类的static成员，不能直接访问外部类的实例变量，与实例方法，只有通过对象引用才能访问。
+静态内部类与其他成员相似，可以用 static 修饰内部类，这样的类称为静态内部类，静态内部类与静态内部方法相似，只能访问外部类的 static 成员，不能直接访问外部类的实例变量，与实例方法，只有通过对象引用才能访问。
 
-成员内部类：成员内部类没有用static修饰且定义在在外部类类体中。
+成员内部类没有用 static 修饰且定义在在外部类类体中。
 
-### 14.枚举比较来了。
+### **14.下面程序的运行结果是什么？**
 ```java
-	public enum Size {
-		SMALL, MEDIUM, LARGE
-	}
+public enum Size {
+	SMALL, MEDIUM, LARGE
+}
 
-	Size size = Size.SMALL;
-	System.out.println(size==Size.SMALL);
-	System.out.println(size.equals(Size.SMALL));
-	System.out.println(size==Size.MEDIUM);
-	System.out.println(size.toString());
-	System.out.println(size.name());
+Size size = Size.SMALL;
+System.out.println(size==Size.SMALL);
+System.out.println(size.equals(Size.SMALL));
+System.out.println(size==Size.MEDIUM);
+System.out.println(size.toString());
+System.out.println(size.name());
 ```
 
-答案：
+结果：
 true
 true
 false
@@ -439,91 +435,94 @@ SMALL
 SMALL
 
 原因：
+枚举可以使用 == 或者 equals 进行比较，结果都一样；枚举也是有顺序的，可以比较大小；枚举变量的 toString 方法和 name 方法返回值一样，都是其字面值；枚举的本质也是类，在编译阶段编译器自动做了很多事情，所以使用起来便捷。
 
-==与equals()比较的一样， 枚举的toString就是它的名字；
-
-### 14. try{}catch与return的玩法/ 描述这些方法调用执行流程和最终返回值！
+### **15. 请粗略描述下面这些方法调用执行流程和最终返回值？**
 ```java
-	public static int test(){
-		int ret = 0;
-		try{
-			return ret;
-		}finally{
-			ret = 2;
-		}
+public static int test(){
+	int ret = 0;
+	try{
+		return ret;
+	}finally{
+		ret = 2;
 	}
+}
 
-	public static int test(){
-		int ret = 0;
-		try{
-			int a = 5/0;
-			return ret;
-		}finally{
-			return 2;
-		}
+public static int test(){
+	int ret = 0;
+	try{
+		int a = 5/0;
+		return ret;
+	}finally{
+		return 2;
 	}
+}
 
-
-	public static void test(){
-		try{
-			int a = 5/0;
-		}finally{
-			throw new RuntimeException("hello");
-		}
+public static void test(){
+	try{
+		int a = 5/0;
+	}finally{
+		throw new RuntimeException("hello");
 	}
+}
 ```
 
 结果：
+1、返回 0，执行到 try 的 return ret; 语句前会先将返回值 ret 保存在一个临时变量中，然后才执行 finally 语句，最后 try 再返回那个临时变量，finally 中对 ret 的修改不会被返回。
 
-1、返回0，执行到try的return ret;语句前，会先将返回值ret保存在一个临时变量中，然后才执行finally语句，最后try再返回那个临时变量，finally中对ret的修改不会被返回。
+2、返回 2，5/0 会触发 ArithmeticException 异常，但是 finally 中有 return 语句，finally 中 return 不仅会覆盖 try 和 catch 内的返回值，还会掩盖 try 和 catch 内的异常，就像异常没有发生一样，所以这个方法就会返回 2，而不再向上传递异常了。
 
-2、返回2，5/0触发ArithmeticException，但是finally中有return语句，finally中有return不仅会覆盖try和catch内的返回值，还会掩盖try和catch内的异常，就像异常没有发生一样，所以这个方法就会返回2，而不再向上传递异常了。
+3、运行抛出 hello 异常，因为如果 finally 中抛出了异常，则原异常就会被掩盖。
 
-3、运行抛出hello 异常，因为如果finally中抛出了异常，则原异常就会被掩盖。
+总结： 
+为避免混淆我们应该避免在 finally 中使用 return 语句或者抛出异常，如果调用的其他代码可能抛出异常，则应该捕获异常并进行处理。
 
-总结： 为避免混淆，应该避免在finally中使用return语句或者抛出异常，如果调用的其他代码可能抛出异常，则应该捕获异常并进行处理。
-
-### 15.java1.5开始的自动装箱和开箱机制是编译器特性还是虚拟机运行时特性？分别是怎么实现的？
+### **16.java1.5开始的自动装箱和开箱机制是编译器特性还是虚拟机运行时特性？分别是怎么实现的？**
 ```java
 Integer i1 = 100;
-        Integer i2 = 100;
-        Integer i3 = 200;
-        Integer i4 = 200;
-        System.out.println(i1 == i2);
-        System.out.println(i3 == i4);
+Integer i2 = 100;
+Integer i3 = 200;
+Integer i4 = 200;
+System.out.println(i1 == i2);
+System.out.println(i3 == i4);
 
-        Double d1 = 100.0;
-        Double d2 = 100.0;
-        Double d3 = 200.0;
-        Double d4 = 200.0;
-        System.out.println(d1 == d2);
-        System.out.println(d3 == d4);
+Double d1 = 100.0;
+Double d2 = 100.0;
+Double d3 = 200.0;
+Double d4 = 200.0;
+System.out.println(d1 == d2);
+System.out.println(d3 == d4);
 
-        Boolean b1 = false;
-        Boolean b2 = false;
-        Boolean b3 = true;
-        Boolean b4 = true;
-        System.out.println(b1 == b2);
-        System.out.println(b3 == b4);
+Boolean b1 = false;
+Boolean b2 = false;
+Boolean b3 = true;
+Boolean b4 = true;
+System.out.println(b1 == b2);
+System.out.println(b3 == b4);
 
-        Integer a = 1;
-        Integer b = 2;
-        Integer c = 3;
-        Integer d = 3;
-        Integer e = 321;
-        Integer f = 321;
-        Long g = 3L;
-        Long h = 2L;
-        System.out.println(c == d);
-        System.out.println(e == f);
-        System.out.println(c == (a + b));
-        System.out.println(c.equals(a + b));
-        System.out.println(g == (a + b));
-        System.out.println(g.equals(a + b));
-        System.out.println(g.equals(a + h));
+Integer a = 1;
+Integer b = 2;
+Integer c = 3;
+Integer d = 3;
+Integer e = 321;
+Integer f = 321;
+Long g = 3L;
+Long h = 2L;
+System.out.println(c == d);
+System.out.println(e == f);
+System.out.println(c == (a + b));
+System.out.println(c.equals(a + b));
+System.out.println(g == (a + b));
+System.out.println(g.equals(a + b));
+System.out.println(g.equals(a + h));
+
+Integer a = 444;
+int b = 444;
+System.out.println(a==b);
+System.out.println(a.equals(b));
 ```
 
-打印结果：
+结果：
 true
 false
 false
@@ -536,15 +535,17 @@ true
 true
 true
 false
+true
+
+true
 true
 
 原因:
+第一第二没什么解释的，第三句 a+b 包含运算符所以自动拆箱，所以比较值，对于 c.equals(a+b) 会先自动触发自动拆箱再触发自动装箱再比较。
 
-Integer类型： -128~127之前会从常量池中直接获取， 当我们执行Integer i2 = 100;的时候， 实际上会最终调用Interget.valueOf(100)方法， 这个方法的实现就是判断实例出来的数值是否在-128到127之间， 如果在的话， 就直接从常量池获取， 而不new对象
-
-Double类型： 与Integer类型一样， 都会调用到Double的valueOf方法。  Double的区别在于， 不管传入的数值是多少， 都会new创建一个对象来表达该数值。d1与d2都new了对象出来，对象无重复，自然就不相等；（打印false）
-
-Boolean类型： 与上面的类型一样，都会调用到Boolean的valueOf方法。 而Boolean变量内部不会new对象来保存，Boolean内部维护这两个不可变更的 public static final Boolean TRUE/false = new Boolean(true/false);变量。
+java 1.5 开始的自动装箱拆箱机制其实是编译器自动完成的替换，装箱阶段自动替换为了 valueOf 方法，拆箱阶段自动替换为了 xxxValue 方法。对于 Integer 类型的 valueOf 方法参数如果是 -128~127 之间的值会直接返回内部缓存池中已经存在对象的引用，参数是其他范围值则返回新建对象；而 Double 类型与 Integer 类型一样会调用到 Double 的 valueOf 方法，但是 Double 的区别在于不管传入的参数值是多少都会 new 一个对象来表达该数值（因为在指定范围内浮点型数据个数是不确定的，整型等个数是确定的，所以可以 Cache）。
+注意：Integer、Short、Byte、Character、Long 的 valueOf 方法实现类似，而 Double 和 Float 比较特殊，每次返回新包装对象。
+对于两边都是包装类型的比较 == 比较的是引用，equals 比较的是值，对于两边有一边是表达式（包含算数运算）则 == 比较的是数值（自动触发拆箱过程），对于包装类型 equals 方法不会进行类型转换。
 
 
 
