@@ -574,14 +574,13 @@ System.out.println(stra == strb);
 System.out.println(stra.equals(strb));
 
 String str1 = "123";
-String str2 = str1.substring(0);
-System.out.println(str1 == str2);
-System.out.println(str1.equals(str2));
+System.out.println("123" == str1.substring(0));
+System.out.println("23" == str1.substring(1));
 
 String str3 = new String("ijk");
-String str4 = str1.substring(0);
+String str4 = str3.substring(0);
 System.out.println(str3 == str4);
-System.out.println(str3.equals(str4));
+System.out.println((new String("ijk") == str4));
 
 String str5 = "NPM";
 String str6 = "npm".toUpperCase();
@@ -633,9 +632,9 @@ false
 true
 
 true
-true
-
 false
+
+true
 false
 
 false
