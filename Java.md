@@ -76,7 +76,7 @@ List<String>[] list = new List<String>[3];
 存在。
   
 **原因：**
-	
+
 数值 `NaN` 代表 not a number，无法用于比较，例如即使是 `i = Double.NaN; j = i;` 最后 `i == j` 的结果依旧为 false。
   
 考察点：Java NaN。
@@ -566,5 +566,117 @@ java 1.5 开始的自动装箱拆箱机制其实是编译器自动完成的替�
 注意：Integer、Short、Byte、Character、Long 的 valueOf 方法实现类似，而 Double 和 Float 比较特殊，每次返回新包装对象。
 对于两边都是包装类型的比较 == 比较的是引用，equals 比较的是值，对于两边有一边是表达式（包含算数运算）则 == 比较的是数值（自动触发拆箱过程），对于包装类型 equals 方法不会进行类型转换。
 
+### **17.String 消消乐，下面程序的执行结果分别是什么？**
+```
+String stra = "ABC";
+String strb = new String("ABC");
+System.out.println(stra == strb);
+System.out.println(stra.equals(strb));
+
+String str1 = "123";
+String str2 = str1.substring(0);
+System.out.println(str1 == str2);
+System.out.println(str1.equals(str2));
+
+String str3 = new String("ijk");
+String str4 = str1.substring(0);
+System.out.println(str3 == str4);
+System.out.println(str3.equals(str4));
+
+String str5 = "NPM";
+String str6 = "npm".toUpperCase();
+System.out.println(str5 == str6);
+System.out.println(str5.equals(str6));
+
+String str7 = new String("TTT");
+String str8 = "ttt".toUpperCase();
+System.out.println(str7 == str8);
+System.out.println(str7.equals(str8));
+
+String str9 = "a1";
+String str10 = "a" + 1;
+System.out.println(str9 == str10);
+
+String str11 = "ab";
+String str12 = "b";
+String str13 = "a" + str12;
+System.out.println(str11 == str13);
+
+String str14 = "ab";
+final String str15 = "b";
+String str16 = "a" + str15; 
+System.out.println(str14 == str16);
 
 
+private static String getBB() {   
+    return "b";   
+}
+String str17 = "ab";   
+final String str18 = getBB();   
+String str19 = "a" + str18;   
+System.out.println(str17 == str19);
+
+
+String str20 = "ab";
+String str21 = "a";   
+String str22 = "b";   
+String str23 = str21 + str22;   
+System.out.println(str23 == str20);   
+System.out.println(str23.intern() == str20);
+System.out.println(str23 == str20.intern());
+System.out.println(str23.intern() == str20.intern());
+```
+**结果：**
+```
+//基于 JDK 1.7 版本
+false
+true
+
+true
+true
+
+false
+false
+
+false
+true
+
+false
+true
+
+true
+
+false
+
+true
+
+false
+
+false
+true
+false
+true
+```
+
+**原因：**
+
+http://blog.csdn.net/chj97/article/details/6899598
+
+Java 中的字符串常量是非常特殊的，除过可以直接赋值给 String 变量外还可以直接使用 String 对象的各种方法，其实这些常量就是 String 类型的对象，在内存中被放在共享的字符串常量池中，这个字符串常量池专门用来保存常量字符串且每个常量只会保存一份，使用者共享，当通过常量的形式使用一个字符串时使用的就是常量池中那个对应的 String 类型的对象。
+
+“==”测试的是两个对象的引用是否相同，而equals()比较的是两个字符串的值是否相等，
+
+
+substring()方法到底做了什么？
+
+在JDK 6中, substring()的做法是，用一个字符数组来表示现存的字符串，然后给这个字符数组提供一个“窗口”，但实际并没有创建一个新的字符数组。要创建一个新的字符串对象由新的字符串数组表示的话，你需要加上一个空字符串，如下所示：
+
+1
+str.substring(m, n) + ""
+这会创建一个新的字符数组，用来表示新的字符串。这种方法会让你的代码更快，因为垃圾收集器会收集不用的长字符串，而仅保存要使用的子字符串。
+
+在Oracle JDK 7中，substring()会创建新的字符数组，而不是使用现存的字符数组。点击查看JDK 6和JDK 7中substring()的分别。
+
+
+
+String 对象一旦创建不可修改，也不可继承，String 内部使用一个 `private final char value[]` 字符数组表示字符串；String 提供很多看似修改的方法其实是通过创建新 String 对象实现的，譬如 concat 方法等。其构造方法是拷贝值到 value，而不是直接使用
