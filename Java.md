@@ -570,41 +570,41 @@ java 1.5 开始的自动装箱拆箱机制其实是编译器自动完成的替�
 ```
 String stra = "ABC";
 String strb = new String("ABC");
-System.out.println(stra == strb);
-System.out.println(stra.equals(strb));
+System.out.println(stra == strb);		//false
+System.out.println(stra.equals(strb));		//true
 
 String str1 = "123";
-System.out.println("123" == str1.substring(0));
-System.out.println("23" == str1.substring(1));
+System.out.println("123" == str1.substring(0));		//true
+System.out.println("23" == str1.substring(1));		//false
 
 String str3 = new String("ijk");
 String str4 = str3.substring(0);
-System.out.println(str3 == str4);
-System.out.println((new String("ijk") == str4));
+System.out.println(str3 == str4);		//true
+System.out.println((new String("ijk") == str4));		//false
 
 String str5 = "NPM";
 String str6 = "npm".toUpperCase();
-System.out.println(str5 == str6);
-System.out.println(str5.equals(str6));
+System.out.println(str5 == str6);		//false
+System.out.println(str5.equals(str6));		//true
 
 String str7 = new String("TTT");
 String str8 = "ttt".toUpperCase();
-System.out.println(str7 == str8);
-System.out.println(str7.equals(str8));
+System.out.println(str7 == str8);		//false
+System.out.println(str7.equals(str8));		//true
 
 String str9 = "a1";
 String str10 = "a" + 1;
-System.out.println(str9 == str10);
+System.out.println(str9 == str10);		//true
 
 String str11 = "ab";
 String str12 = "b";
 String str13 = "a" + str12;
-System.out.println(str11 == str13);
+System.out.println(str11 == str13);		//false
 
 String str14 = "ab";
 final String str15 = "b";
 String str16 = "a" + str15; 
-System.out.println(str14 == str16);
+System.out.println(str14 == str16);		//true
 
 
 private static String getBB() {   
@@ -613,69 +613,34 @@ private static String getBB() {
 String str17 = "ab";   
 final String str18 = getBB();   
 String str19 = "a" + str18;   
-System.out.println(str17 == str19);
+System.out.println(str17 == str19);		//false
 
 
 String str20 = "ab";
 String str21 = "a";   
 String str22 = "b";   
 String str23 = str21 + str22;   
-System.out.println(str23 == str20);   
-System.out.println(str23.intern() == str20);
-System.out.println(str23 == str20.intern());
-System.out.println(str23.intern() == str20.intern());
+System.out.println(str23 == str20);   		//false
+System.out.println(str23.intern() == str20);		//true
+System.out.println(str23 == str20.intern());		//false
+System.out.println(str23.intern() == str20.intern());		//true
 ```
 **结果：**
 ```
-//基于 JDK 1.7 版本
-false
-true
-
-true
-false
-
-true
-false
-
-false
-true
-
-false
-true
-
-true
-
-false
-
-true
-
-false
-
-false
-true
-false
-true
+见题目中注释部分，基于 JDK 1.7 版本分析。
 ```
 
 **原因：**
 
-http://blog.csdn.net/chj97/article/details/6899598
+对于 stra 与 strb 来说没啥分析的，显式的创建了新对象，使用 == 总是不等，equals 被重写过，值判断。
+对于 str1 的 substring 来说其实跳进去看下这个方法的实现就明白了，里面有个 index == 0 判断，等于 0 就直接返回当前对象，否则新 new 一个。
+对于 str3 与 str4 来说就没啥分析的必要了，参见上面两个分析结果。
+对于 str5、str6、str7、str8 来说实质都一样，toUpperCase 方法内部创建了新字符串对象。
+对于 str9 与 str10 来说当两个字符串常量连接时（相加）得到的新字符串依然是字符串常量且保存在常量池中。
+对于 str11 到 str13 来说当字符串常量与 String 类型变量连接时得到的新字符串不再保存在常量池中，而是在堆中新建一个 String 对象来存放，很明显常量池中要求的存放的是常量，有String类型变量当然不能存在常量池中了。
+对于 str14 到 str16 来说此处是字符串常量与 String 类型常量连接，得到的新字符串依然保存在常量池中。
+对于 str17 到 str19 来说`final String str18 = getBB()`其实与`final String str18 = new String(“b”)`是一样的，也就是说 return “b” 会在堆中创建一个 String 对象保存 ”b”，虽然 str18 被定义成了 final，所以可见看见，并非定义为 final 的就保存在常量池中，很明显此处 str18 常量引用的 String 对象保存在堆中，因为 getBB() 得到的 String 已经保存在堆中了，final 的 String 引用并不会改变 String 已经保存在堆中这个事实。
+**str9 到 str19 深刻的说明了我们在代码中使用 String 时应该有的优化技巧，你懂得！**
+对于 str20 到 str23 来说`str23 == str20`就是上面刚刚分析的；而对于调用 intern 方法如果字符串常量池中已经包含一个等于此 String 对象的字符串（用 equals(Object) 方法确定）则返回字符串常量池中的字符串，否则将此 String 对象添加到字符串常量池中，并返回此 String 对象的引用，所以`str23.intern() == str20`实质是常量比较返回 true，`str23 == str20.intern()`中 str23 就是上面说的堆中新对象，相当于一个新对象和一个常量比较，所以返回 false，`str23.intern() == str20.intern()` 就没啥说的了，指定相等。
 
-Java 中的字符串常量是非常特殊的，除过可以直接赋值给 String 变量外还可以直接使用 String 对象的各种方法，其实这些常量就是 String 类型的对象，在内存中被放在共享的字符串常量池中，这个字符串常量池专门用来保存常量字符串且每个常量只会保存一份，使用者共享，当通过常量的形式使用一个字符串时使用的就是常量池中那个对应的 String 类型的对象。
-
-“==”测试的是两个对象的引用是否相同，而equals()比较的是两个字符串的值是否相等，
-
-
-substring()方法到底做了什么？
-
-在JDK 6中, substring()的做法是，用一个字符数组来表示现存的字符串，然后给这个字符数组提供一个“窗口”，但实际并没有创建一个新的字符数组。要创建一个新的字符串对象由新的字符串数组表示的话，你需要加上一个空字符串，如下所示：
-
-1
-str.substring(m, n) + ""
-这会创建一个新的字符数组，用来表示新的字符串。这种方法会让你的代码更快，因为垃圾收集器会收集不用的长字符串，而仅保存要使用的子字符串。
-
-在Oracle JDK 7中，substring()会创建新的字符数组，而不是使用现存的字符数组。点击查看JDK 6和JDK 7中substring()的分别。
-
-
-
-String 对象一旦创建不可修改，也不可继承，String 内部使用一个 `private final char value[]` 字符数组表示字符串；String 提供很多看似修改的方法其实是通过创建新 String 对象实现的，譬如 concat 方法等。其构造方法是拷贝值到 value，而不是直接使用
+要玩明白 Java String 对象的核心其实就是玩明白字符串的堆栈和常量池，虚拟机为每个被装载的类型维护一个常量池，常量池就是该类型所用常量的一个有序集合，包括直接常量（String、Integer 和 Floating Point常量）和对其他类型、字段和方法的符号引用，池中的数据项就像数组一样是通过索引访问的；由于常量池存储了相应类型所用到的所有类型、字段和方法的符号引用，所以它在 Java 程序的动态链接中起着核心的作用。
