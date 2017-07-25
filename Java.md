@@ -775,6 +775,43 @@ arrayList4 拿回来直接用就可能出现 ClassCastException 异常啊，卧�
 
 同理对于 arrayList5 来说类似 arrayList4，只不过最终 get 出来是从 String 转为 Object，不会出现 ClassCastException 异常，但是一样卧槽啊，我还得自己转，毛线，泛型出现之一也是为了解决这个锅啊，所以 Java 直接不允许进行这样的引用传递，所以直接编译报错，扼杀在摇篮。
 
+_e.请尝试解释下面程序中注释问题？_
+```java
+ArrayList<String> arrayList = new ArrayList<String>();    
+if(arrayList instanceof ArrayList<String>) { //TODO }	//1.是否可以运行及结果原因
+if(arrayList instanceof ArrayList<?>) { //TODO }	//2.是否可以运行及结果原因
+
+public class Problem<T> extends Exception{ //TODO }		//3.是否可以运行及结果原因
+
+public static <T extends Throwable> void test(Class<T> t) {  
+	try{  
+		//TODO 
+	}catch(T e){	//4.是否可以运行及结果原因
+		//TODO
+	}
+}
+
+public static <T extends Throwable> void test1(T t) throws T {  
+    try{  
+        //TODO
+    }catch(Throwable realCause){  
+        t.initCause(realCause);  
+        throw t;   			//5.是否可以运行及结果原因
+    }
+}
+```
+解答：
+
+1 编译报错，因为类型擦除之后，ArrayList<String> 只剩下原始类型，泛型信息String不存在了，所以进行类型查询的时候使用具体泛型类型是错误的。
+
+2 可以运行，因为 java 限定了通配符这种类型查询的方式。
+
+3 编译报错，因为不能出现继承异常的泛型类也不能捕获泛型类的异常对象，因为异常都是在运行时捕获和抛出的，而在编译的时候泛型信息全都会被擦除掉，所以多个 catcch 中可能会存在一样的原始类型捕获，这是不符合异常的语法。
+
+4 编译报错，不可以在 catch 子句中使用泛型变量，因为泛型信息在编译的时候已经变为原始类型，也就是说上面的 T 会变为原始类型 Throwable，假设同时有多个 catch 则就不符合异常的语法。
+
+5 可以运行，在异常声明中可以使用泛型类型变量。
+
 
 
 
