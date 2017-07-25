@@ -567,7 +567,7 @@ java 1.5 开始的自动装箱拆箱机制其实是编译器自动完成的替�
 对于两边都是包装类型的比较 == 比较的是引用，equals 比较的是值，对于两边有一边是表达式（包含算数运算）则 == 比较的是数值（自动触发拆箱过程），对于包装类型 equals 方法不会进行类型转换。
 
 ### **17.String 消消乐，下面程序的执行结果分别是什么？**
-```
+```java
 String stra = "ABC";
 String strb = new String("ABC");
 System.out.println(stra == strb);		//false
@@ -666,7 +666,7 @@ System.out.println(str23.intern() == str20.intern());		//true
 ### **19.Java 泛型实战面试全攻略，分别尝试回答小面几个小问题！（理解不了就 javap -c 等）**
 
 _a.下面两个方法有什么区别，有什么问题？_
-```
+```java
 public static <T> T get1(T t1, T t2) {  
 	if(t1.compareTo(t2) >= 0);
 	return t1;  
@@ -684,7 +684,7 @@ get1 方法直接编译错误，因为编译器在编译前首先进行了泛型
 get2 方法添加了泛型类型限定可以正常使用，因为限定类型为 Comparable 接口，其存在 compareTo 方法，所以 t1、t2 擦除后被强转成功。所以类型限定在泛型类、泛型接口和泛型方法中都可以使用，不过不管该限定是类还是接口都使用 extends 和 & 符号，如果限定类型既有接口也有类则类必须只有一个且放在首位，如果泛型类型变量有多个限定则原始类型就用第一个边界的类型变量来替换。
  
 _b.下面程序的运行结果是什么？为什么？_
-```
+```java
 ArrayList<String> arrayList1 = new ArrayList<String>();  
 arrayList1.add("demo");  
 ArrayList<Integer> arrayList2 = new ArrayList<Integer>();  
@@ -706,7 +706,7 @@ for (int i=0;i<arrayList3.size();i++) {
 第二个正常打印数字 123 和字符串 demo，因为 arrayList3 是`ArrayList<Integer>`泛型类型只能存储整形，但是编译擦除后成了 ArrayList，add 参数擦除替换为 Object，所以可以 add String 类型。
 
 _c.请尝试解释下面程序中每行代码执行情况及原因？_
-```
+```java
 public class Test{
 	public static <T> T add(T x, T y){  
         return y;
@@ -740,7 +740,7 @@ t0、t1、t2、t3 其实演示了调用泛型方法不指定泛型的几种情�
 切记，java 编译器是通过先检查代码中泛型的类型，然后再进行类型擦除，再进行编译的。
 
 _d.请尝试解释下面程序中每行代码执行情况及原因？_
-```
+```java
 ArrayList<String> arrayList1 = new ArrayList();		// 编译警告
 arrayList1.add("1");	// 编译通过  
 arrayList1.add(1);		// 编译错误
