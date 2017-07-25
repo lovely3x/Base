@@ -799,6 +799,8 @@ public static <T extends Throwable> void test1(T t) throws T {
         throw t;   			//5.是否可以运行及结果原因
     }
 }
+
+ArrayList listn = new ArrayList(); //已过时，取出来时需要自己强制转换，引入泛型代码之前的方式，在引入泛型后集合都已经重写以迎合泛型
 ```
 解答：
 
@@ -812,7 +814,30 @@ public static <T extends Throwable> void test1(T t) throws T {
 
 5 可以运行，在异常声明中可以使用泛型类型变量。
 
+_f.请尝试解释下面程序中注释问题？_
+```
+List<String>[] ls1 = new ArrayList<String>[10];	//1
+List<String>[] ls2 = new ArrayList[10];	//2
+List<?>[] lsa = new List<?>[10];	//3
+```
+结果：
 
+1 编译错误。
+
+2 正常运行，但是编译有警告。
+
+3 正常运行。
+
+因为 Java 规定数组的类型不可以是泛型类型变量，除非是采用通配符的方式。数组是允许把一个子类数组赋给一个父类数组变量的，譬如 Father 继承自 Son，则可以定义`Father[] son=new Son[10];`，如果 Java 允许泛型数组这会出现如下代码：
+```
+List<String>[] ls1 = new ArrayList<String>[10];
+Object[] oj = ls1;
+```
+也就是我们能在数组 ls1 里存放任何类的对象且能够通过编译，因为在编译阶段 ls1 被认为是一个Object[]，也就是 ls1 里面可以放一个 int、也可以放一个 String，当我们运行阶段取出里面的 int 并强制转换为 String 则会出现 ClassCastException，这明显违反了泛型引入的原则，所以 Java 不允许创建泛型数组。
+
+因为对于 3 通配符的方式和 2 的方式，最后取出数据是要做显式的类型转换的，所以并不会存在上一个例子的问题。
+
+提示：直接使用`ArrayList<ArrayList<String>>`最安全且有效。
 
 
 
