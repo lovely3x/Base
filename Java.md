@@ -665,7 +665,7 @@ System.out.println(str23.intern() == str20.intern());		//true
 
 ### **19.尬了这碗泛型，分别尝试回答小面几个小问题！**
 
-a.下面两个方法有什么区别，有什么问题？
+_a.下面两个方法有什么区别，有什么问题？_
 ```
 public static <T> T get1(T t1, T t2) {  
 	if(t1.compareTo(t2) >= 0);
@@ -677,13 +677,13 @@ public static <T extends Comparable> T get2(T t1, T t2) {
 	return t1;  
 }
 ```
-**结果：**
+结果：
 
 get1 方法直接编译错误，因为编译器在编译前首先进行了泛型检查和泛型擦除才编译，所以等到真正编译时 T 由于没有类型限定自动擦除为 Object 类型，所以只能调用 Object 的方法，而 Object 没有 compareTo 方法。
 
 get2 方法添加了泛型类型限定可以正常使用，因为限定类型为 Comparable 接口，其存在 compareTo 方法，所以 t1、t2 擦除后被强转成功。所以类型限定在泛型类、泛型接口和泛型方法中都可以使用，不过不管该限定是类还是接口都使用 extends 和 & 符号，如果限定类型既有接口也有类则类必须只有一个且放在首位，如果泛型类型变量有多个限定则原始类型就用第一个边界的类型变量来替换。
  
-b.下面程序的运行结果是什么？为什么？
+_b.下面程序的运行结果是什么？为什么？_
 ```
 ArrayList<String> arrayList1 = new ArrayList<String>();  
 arrayList1.add("demo");  
@@ -699,13 +699,13 @@ for (int i=0;i<arrayList3.size();i++) {
 	System.out.println(arrayList3.get(i));  
 }
 ```
-**结果：**
+结果：
 
 第一个返回 true，因为 arrayList1 是`ArrayList<String>`泛型类型只能存储字符串，arrayList2 是`ArrayList<Integer>`泛型类型只能存储整形，而在编译后运行时泛型类型 String 和 Integer 都被擦除只剩下原始类型，所以都是 ArrayList 类，故相等。
 
 第二个正常打印数字 123 和字符串 demo，因为 arrayList3 是`ArrayList<Integer>`泛型类型只能存储整形，但是编译擦除后成了 ArrayList，add 参数擦除替换为 Object，所以可以 add String 类型。
 
-c.请尝试解释下面程序中每行代码执行情况及原因？
+_c.请尝试解释下面程序中每行代码执行情况及原因？_
 ```
 public class Test{
 	public static <T> T add(T x, T y){  
@@ -714,17 +714,17 @@ public class Test{
   
     public static void main(String[] args) {
 		int t0 = Test.add(10, 20.8);
-        int t1 = Test.add(10, 20);
-        Number t2 = Test.add(100, 22.2);
-        Object t3 = Test.add(121, "abc");
-  
-        int t4 = Test.<Integer>add(10, 20);
-        int t5 = Test.<Integer>add(100, 22.2);
-        Number t6 = Test.<Number>add(121, 22.2);
+		int t1 = Test.add(10, 20);
+		Number t2 = Test.add(100, 22.2);
+		Object t3 = Test.add(121, "abc");
+
+		int t4 = Test.<Integer>add(10, 20);
+		int t5 = Test.<Integer>add(100, 22.2);
+		Number t6 = Test.<Number>add(121, 22.2);
     }
 }  
 ```
-**结果：**
+结果：
 ```
 t0 编译直接报错，add 的两个参数一个是 Integer，一个是 Float，所以取同一父类的最小级为 Number，故 T 为 Number 类型，而 t0 类型为 int，所以类型错误。
 t1 执行赋值成功，add 的两个参数都是 Integer，所以 T 为 Integer 类型。
@@ -737,6 +737,9 @@ t6 执行赋值成功，add 指定了泛型类型为 Number，所以只能 add �
 t0、t1、t2、t3 其实演示了调用泛型方法不指定泛型的几种情况，t4、t5、t6 演示了调用泛型方法指定泛型的情况。
 在调用泛型方法的时可以指定泛型，也可以不指定泛型；在不指定泛型时泛型变量的类型为该方法中的几种类型的同一个父类的最小级（直到 Object），在指定泛型时该方法中的几种类型必须是该泛型实例类型或者其子类。
 
+切记，java 编译器是通过先检查代码中泛型的类型，然后再进行类型擦除，再进行编译的。
+
+### **20.泛型不醉不归，继续分别尝试回答小面几个小问题！**
 
 
 
