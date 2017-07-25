@@ -663,7 +663,7 @@ System.out.println(str23.intern() == str20.intern());		//true
 
 3、泛型的好处其实就是约束，可以让我们编写的接口、类、方法等脱离具体类型限定而适用于更加广泛的类型，从而使代码达到低耦合、高复用、高可读、安全可靠的特点，避免主动向下转型带来的恶心可读性和隐晦的转换异常，尽可能的将类型问题暴露在 IDE 提示和编译阶段。
 
-### **19.尬了这碗泛型，分别尝试回答小面几个小问题！**
+### **19.Java 泛型实战面试全攻略，分别尝试回答小面几个小问题！（理解不了就 javap -c 等）**
 
 _a.下面两个方法有什么区别，有什么问题？_
 ```
@@ -739,7 +739,44 @@ t0、t1、t2、t3 其实演示了调用泛型方法不指定泛型的几种情�
 
 切记，java 编译器是通过先检查代码中泛型的类型，然后再进行类型擦除，再进行编译的。
 
-### **20.泛型不醉不归，继续分别尝试回答小面几个小问题！**
+_d.请尝试解释下面程序中每行代码执行情况及原因？_
+```
+ArrayList<String> arrayList1 = new ArrayList();		// 编译警告
+arrayList1.add("1");	// 编译通过  
+arrayList1.add(1);		// 编译错误
+String str1 = arrayList1.get(0);		//返回类型就是 String  
+
+ArrayList arrayList2 = new ArrayList<String>();  	// 编译警告
+arrayList2.add("1");	// 编译通过  
+arrayList2.add(1);		// 编译通过  
+Object object = arrayList2.get(0);	// 返回类型就是 Object  
+
+List<String> arrayList3 = new ArrayList<>();	//JDK7的新特性，会自动推断泛型
+arrayList3.add("123");	//编译通过
+arrayList3.add(123);	//编译错误
+  
+new ArrayList<String>().add("11");	// 编译通过
+new ArrayList<String>().add(22);	// 编译错误  
+String string = new ArrayList<String>().get(0); // 返回类型就是 String  
+
+ArrayList<String> arrayList4 = new ArrayList<Object>();	// 编译错误  
+ArrayList<Object> arrayList5 = new ArrayList<String>();	// 编译错误  
+```	
+
+解释：
+
+arrayList1 其实可以实现与完全使用泛型参数一样的效果，arrayList2 完全没了泛型特性，arrayList3 是 JDK 7 支持的中规中矩写法，由于类型检查就是针对引用的，与引用的对象无关，所以有了这些结果。
+
+arrayList4 与 arrayList5 是因为泛型中参数化类型是不支持继承关系的，切记（注意与 arrayList1 和 arrayList2 对比理解）。至于不支持的原因如下：
+
+对于 arrayList4 首先我们假设 `new ArrayList<Object>()` 申请的内存赋值给了引用类型是`ArrayList<Object>`或 ArrayList 的 temp，接着我们向 temp 中添加了几个元素（支持 add 任何类型），
+然后让`ArrayList<String> arrayList4 = temp`，这时候调用 arrayList4 的 get 返回的都是 String 类型（类型检测是根据引用来决定的），锅来了，temp 中存了各种奇怪的类型啊，
+arrayList4 拿回来直接用就可能出现 ClassCastException 异常啊，卧槽，Java 设计泛型的目的之一就是为了避免出现这种锅啊，所以 Java 直接不允许进行这样的引用传递，所以直接编译报错，扼杀在摇篮。
+
+同理对于 arrayList5 来说类似 arrayList4，只不过最终 get 出来是从 String 转为 Object，不会出现 ClassCastException 异常，但是一样卧槽啊，我还得自己转，毛线，泛型出现之一也是为了解决这个锅啊，所以 Java 直接不允许进行这样的引用传递，所以直接编译报错，扼杀在摇篮。
+
+
+
 
 
 
