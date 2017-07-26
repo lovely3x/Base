@@ -814,7 +814,7 @@ ArrayList listn = new ArrayList(); //已过时，取出来时需要自己强制�
 
 5 可以运行，在异常声明中可以使用泛型类型变量。
 
-_f.请尝试解释下面程序中注释问题？_
+_f.请尝试解释下面程序编译到运行的现象及原因？_
 ```
 List<String>[] ls1 = new ArrayList<String>[10];	//1
 List<String>[] ls2 = new ArrayList[10];	//2
@@ -837,6 +837,48 @@ Object[] oj = ls1;
 
 提示：直接使用`ArrayList<ArrayList<String>>`最安全且有效。
 
+_g.请尝试解释下面程序编译到运行的现象及原因？_
+```
+a1 = new T(); //1
+
+public<T> T[] func(T[] a){  
+	T[] a2 = new T[2]; //2  
+	return a2;
+}
+
+public static <T extends Comparable> T[] func1(T[] a) {  
+	T[] a3 == (T[]) Array.newInstance(a.getClass().getComponentType(), 2);	//3
+	return a3;
+}
+```
+解答：
+
+1 编译时报错，不能实例化泛型类型，类型擦除会使这个操作做成 new Object()。
+  
+2 编译时报错，不能创建泛型数组，擦除会使这个方法构造一个 Object[2] 数组。
+
+3 可以运行，可以用反射构造泛型对象和数组。
+
+_h.请尝试解释下面程序编译到运行的现象及原因？_
+```
+public class Test1<T> {    
+    public static T value;   //1
+    public static  T test1(T param){ //2
+        return null;    
+    }    
+}
+
+public class Test2<T> {    
+    public static <T> T test2(T param){	//3
+        return null;
+    }    
+}
+```
+解答：
+
+1 编译错误，2 编译错误，3 正常运行。
+
+因为泛型类中的静态方法和静态变量不可以使用泛型类所声明的泛型类型参数，泛型类中的泛型参数的实例化是在定义对象的时候指定的，而静态变量和静态方法不需要使用对象来调用，对象都没创建，如何确定这个泛型参数是何种类型，所以当然是错误的；而 3 之所以成功是因为在泛型方法中使用的 T 是自己在方法中定义的 T，而不是泛型类中的 T。
 
 
 
