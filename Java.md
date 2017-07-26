@@ -888,3 +888,37 @@ class Test<T> {  //4 这个类可以运行吗？
 
 4 无法编译通过，因为擦除后方法 boolean equals(T) 变成了方法 boolean equals(Object)，这与 Object.equals 方法是冲突的，除非重新命名引发错误的方法。
 
+_i.下面程序有什么问题，该如何修复？_
+```java
+public class Test {  
+    public static void main(String[] args) throws Exception{  
+        List<Integer> listInteger = new ArrayList<Integer>();   
+        printCollection(listInteger);     
+    }   
+    public static void printCollection(Collection<Object> collection) {  
+        for(Object obj:collection){  
+            System.out.println(obj);  
+        }    
+    }  
+}
+```
+解答：
+
+语句`printCollection(listInteger);`编译报错，因为泛型的参数是没有继承关系的。
+修复方式就是使用 ？通配符，`printCollection(Collection<?> collection)`，因为在方法`printCollection(Collection<?> collection)`中不可以出现与参数类型有关的方法，譬如`collection.add()`，因为程序调用这个方法的时候传入的参数不知道是什么类型的，但是可以调用与参数类型无关的方法，譬如 collection.size()。
+
+_j.下面程序编译运行会有什么现象？_
+```java
+Vector<? extends Number> x1 = new Vector<Integer>();	//正确
+Vector<? extends Number> x2 = new Vector<String>();	//编译错误
+
+Vector<? super Integer> y1 = new Vector<Number>();	//正确
+Vector<? super Integer> y2 = new Vector<Byte>();	//编译错误
+```
+解释：
+
+本题主要考察泛型中的`?`通配符的上下边界扩展问题。
+
+通配符对于上边界有如下限制：`Vector<? extends 类型1> x = new Vector<类型2>();`中的类型1指定一个数据类型，则类型2就只能是类型1或者是类型1的子类。
+
+通配符对于下边界有如下限制：`Vector<? super 类型1> x = new Vector<类型2>();`中的类型1指定一个数据类型，则类型2就只能是类型1或者是类型1的父类。
