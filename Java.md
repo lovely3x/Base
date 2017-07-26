@@ -922,3 +922,8 @@ Vector<? super Integer> y2 = new Vector<Byte>();	//编译错误
 通配符对于上边界有如下限制：`Vector<? extends 类型1> x = new Vector<类型2>();`中的类型1指定一个数据类型，则类型2就只能是类型1或者是类型1的子类。
 
 通配符对于下边界有如下限制：`Vector<? super 类型1> x = new Vector<类型2>();`中的类型1指定一个数据类型，则类型2就只能是类型1或者是类型1的父类。
+
+_j.干了这组网络流行泛型面试题！_
+
+http://www.cnblogs.com/huajiezh/p/6411123.html
+
