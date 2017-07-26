@@ -815,7 +815,7 @@ ArrayList listn = new ArrayList(); //已过时，取出来时需要自己强制�
 5 可以运行，在异常声明中可以使用泛型类型变量。
 
 _f.请尝试解释下面程序编译到运行的现象及原因？_
-```
+```java
 List<String>[] ls1 = new ArrayList<String>[10];	//1
 List<String>[] ls2 = new ArrayList[10];	//2
 List<?>[] lsa = new List<?>[10];	//3
@@ -829,7 +829,7 @@ List<?>[] lsa = new List<?>[10];	//3
 3 正常运行。
 
 因为 Java 规定数组的类型不可以是泛型类型变量，除非是采用通配符的方式。数组是允许把一个子类数组赋给一个父类数组变量的，譬如 Father 继承自 Son，则可以定义`Father[] son=new Son[10];`，如果 Java 允许泛型数组这会出现如下代码：
-```
+```java
 List<String>[] ls1 = new ArrayList<String>[10];
 Object[] oj = ls1;
 ```
@@ -838,7 +838,7 @@ Object[] oj = ls1;
 提示：直接使用`ArrayList<ArrayList<String>>`最安全且有效。
 
 _g.请尝试解释下面程序编译到运行的现象及原因？_
-```
+```java
 a1 = new T(); //1
 
 public<T> T[] func(T[] a){  
@@ -860,7 +860,7 @@ public static <T extends Comparable> T[] func1(T[] a) {
 3 可以运行，可以用反射构造泛型对象和数组。
 
 _h.请尝试解释下面程序编译到运行的现象及原因？_
-```
+```java
 public class Test1<T> {    
     public static T value;   //1
     public static  T test1(T param){ //2
@@ -873,6 +873,12 @@ public class Test2<T> {
         return null;
     }    
 }
+
+class Test<T> {  //4 这个类可以运行吗？
+    public boolean equals(T value) {  
+        return true;  
+    }     
+}
 ```
 解答：
 
@@ -880,5 +886,5 @@ public class Test2<T> {
 
 因为泛型类中的静态方法和静态变量不可以使用泛型类所声明的泛型类型参数，泛型类中的泛型参数的实例化是在定义对象的时候指定的，而静态变量和静态方法不需要使用对象来调用，对象都没创建，如何确定这个泛型参数是何种类型，所以当然是错误的；而 3 之所以成功是因为在泛型方法中使用的 T 是自己在方法中定义的 T，而不是泛型类中的 T。
 
-
+4 无法编译通过，因为擦除后方法 boolean equals(T) 变成了方法 boolean equals(Object)，这与 Object.equals 方法是冲突的，除非重新命名引发错误的方法。
 
