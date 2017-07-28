@@ -660,6 +660,7 @@ System.out.println(str23.intern() == str20.intern());		//true
 1、Java 泛型实质就是一种语法约束，泛型是Java SE 1.5的新特性，泛型的本质是参数化类型，也就是说所操作的数据类型被指定为一个参数，这种参数类型可以用在类、接口和方法的创建中，分别称为泛型类、泛型接口、泛型方法。
 
 2、泛型的核心原理其实就是泛型的 T 类型参数的原理，Java 编译器在编译阶段会将泛型代码转换为普通的非泛型代码，实质就是擦除类型参数 T 替换为限定类型（无限定类型替换为Object）且插入必要的强制类型转换操作，所以核心其实就是 Test<String> 被擦除还原为 Test，同时 java 编译器是通过先检查代码中泛型的类型然后再进行类型擦除，最后进行编译的。
+编译器在编译时擦除所有类型相关信息，所以在运行时不存在任何类型相关信息，例如`List<String>`在运行时仅用一个`List`来表示，这样做的目的是确保能和 Java 5 之前的版本开发二进制类库进行兼容，我们无法在运行时访问到类型参数，因为编译器已经把泛型类型转换成了原始类型。
 
 3、泛型的好处其实就是约束，可以让我们编写的接口、类、方法等脱离具体类型限定而适用于更加广泛的类型，从而使代码达到低耦合、高复用、高可读、安全可靠的特点，避免主动向下转型带来的恶心可读性和隐晦的转换异常，尽可能的将类型问题暴露在 IDE 提示和编译阶段。
 
@@ -682,7 +683,7 @@ public static <T extends Comparable> T get2(T t1, T t2) {
 get1 方法直接编译错误，因为编译器在编译前首先进行了泛型检查和泛型擦除才编译，所以等到真正编译时 T 由于没有类型限定自动擦除为 Object 类型，所以只能调用 Object 的方法，而 Object 没有 compareTo 方法。
 
 get2 方法添加了泛型类型限定可以正常使用，因为限定类型为 Comparable 接口，其存在 compareTo 方法，所以 t1、t2 擦除后被强转成功。所以类型限定在泛型类、泛型接口和泛型方法中都可以使用，不过不管该限定是类还是接口都使用 extends 和 & 符号，如果限定类型既有接口也有类则类必须只有一个且放在首位，如果泛型类型变量有多个限定则原始类型就用第一个边界的类型变量来替换。
- 
+
 _b.下面程序的运行结果是什么？为什么？_
 ```java
 ArrayList<String> arrayList1 = new ArrayList<String>();  
@@ -850,6 +851,8 @@ public static <T extends Comparable> T[] func1(T[] a) {
 	T[] a3 == (T[]) Array.newInstance(a.getClass().getComponentType(), 2);	//3
 	return a3;
 }
+
+class Bean<T super Student> { //TODO }	//4
 ```
 解答：
 
@@ -858,6 +861,8 @@ public static <T extends Comparable> T[] func1(T[] a) {
 2 编译时报错，不能创建泛型数组，擦除会使这个方法构造一个 Object[2] 数组。
 
 3 可以运行，可以用反射构造泛型对象和数组。
+
+4 编译时报错，因为 Java 类型参数限定只有 extends 形式，没有 super 形式。
 
 _h.请尝试解释下面程序编译到运行的现象及原因？_
 ```java
@@ -923,7 +928,85 @@ Vector<? super Integer> y2 = new Vector<Byte>();	//编译错误
 
 通配符对于下边界有如下限制：`Vector<? super 类型1> x = new Vector<类型2>();`中的类型1指定一个数据类型，则类型2就只能是类型1或者是类型1的父类。
 
-_j.干了这组网络流行泛型面试题！_
+_k.什么是泛型中的限定通配符和非限定通配符？_
 
-http://www.cnblogs.com/huajiezh/p/6411123.html
+解答：
+
+限定通配符对类型进行了限制，有两种限定通配符，一种是`<? extends T>`通过确保类型必须是 T 的子类来设定类型的上界，另一种是`<? super T>`它通过确保类型必须是 T 的父类来设定类型的下界，泛型类型必须用限定内的类型来进行初始化，否则会导致编译错误。
+另一方面`<?>`表示非限定通配符，因为`<?>`可以用任意类型来替代。
+
+_l.简单说说 Java 中`List<Object>`和原始类型`List`之间的区别？_
+
+解答：
+
+区别一：原始类型和带泛型参数类型`<Object>`之间的主要区别是在编译时编译器不会对原始类型进行类型安全检查，却会对带参数的类型进行检查，通过使用 Object 作为类型可以告知编译器该方法可以接受任何类型的对象（比如 String 或 Integer）。
+
+区别二：我们可以把任何带参数的类型传递给原始类型 List，但却不能把`List<String>`传递给接受`List<Object>`的方法，因为会产生编译错误。
+
+_m.Java 中`List<?>`和`List<Object>`之间的区别是什么？_
+
+解答：
+
+这道题跟上一道题看起来很像，实质上却完全不同。`List<?>`是一个未知类型的`List`，而`List<Object>`其实是任意类型的`List`。我们可以把`List<String>`, `List<Integer>`赋值给`List<?>`，却不能把`List<String>`赋值给`List<Object>`。譬如：
+```
+List<?> listOfAnyType;
+List<Object> listOfObject = new ArrayList<Object>();
+List<String> listOfString = new ArrayList<String>();
+List<Integer> listOfInteger = new ArrayList<Integer>();
+listOfAnyType = listOfString; //legal
+listOfAnyType = listOfInteger; //legal
+listOfObjectType = (List<Object>) listOfString; //compiler error – in-convertible types
+```
+所以通配符形式都可以用类型参数的形式来替代，通配符能做的用类型参数都能做。
+通配符形式可以减少类型参数，形式上往往更为简单，可读性也更好，所以能用通配符的就用通配符。
+如果类型参数之间有依赖关系或者返回值依赖类型参数或者需要写操作则只能用类型参数。
+
+_n.`List<? extends T>`和`List <? super T>`之间有什么区别？_
+
+解答：
+
+有时面试官会用这个问题来评估你对泛型的理解，而不是直接问你什么是限定通配符和非限定通配符，这两个`List`的声明都是限定通配符的例子，`List<? extends T>`可以接受任何继承自 T 的类型的`List`，而`List<? super T>`可以接受任何 T 的父类构成的`List`。
+例如`List<? extends Number>`可以接受`List<Integer>`或`List<Float>`。Java 容器类的实现中有很多这种用法，比如 Collections 中就有如下一些方法：
+```
+public static <T extends Comparable<? super T>> void sort(List<T> list)
+public static <T> void sort(List<T> list, Comparator<? super T> c)
+public static <T> void copy(List<? super T> dest, List<? extends T> src)
+public static <T> T max(Collection<? extends T> coll, Comparator<? super T> comp)
+```
+
+_o.`<T extends E>`和`<? extends E>`有什么关系？_
+
+解答：
+
+它们用的地方不一样，`<T extends E>`用于定义类型参数，声明了一个类型参数 T，可放在泛型类定义中类名后面、泛型方法返回值前面。
+`<? extends E>`用于实例化类型参数，用于实例化泛型变量中的类型参数，只是这个具体类型是未知的，只知道它是 E 或 E 的某个子类型。
+虽然它们不一样，但两种写法经常可以达到相同的目的，譬如：
+```
+public void addAll(Bean<? extends E> c)
+public <T extends E> void addAll(Bean<T> c) 
+```
+
+_p.解释下面程序执行情况和原因？_
+
+```
+DynamicArray<Integer> ints = new DynamicArray<>();
+DynamicArray<? extends Number> numbers = ints; 
+Integer a = 200;
+numbers.add(a);		//这三行add现象？
+numbers.add((Number)a);
+numbers.add((Object)a);
+
+public void copyTo(DynamicArray<? super E> dest){
+    for(int i=0; i<size; i++){
+        dest.add(get(i));	//这行add现象？
+    }
+}
+```
+解析：
+
+上面三种 add 方法都是非法的，无论是 Integer，还是 Number 或 Object，编译器都会报错。因为`?`表示类型安全无知，`? extends Number`表示是Number的某个子类型，但不知道具体子类型，
+如果允许写入，Java 就无法确保类型安全性，所以直接禁止。
+
+最后方法的 add 是合法的，因为`<? super E>`形式与`<? extends E>`正好相反，超类型通配符表示 E 的某个父类型，有了它我们就可以更灵活的写入了。
+
 
