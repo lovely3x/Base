@@ -948,7 +948,7 @@ _m.Java 中`List<?>`和`List<Object>`之间的区别是什么？_
 解答：
 
 这道题跟上一道题看起来很像，实质上却完全不同。`List<?>`是一个未知类型的`List`，而`List<Object>`其实是任意类型的`List`。我们可以把`List<String>`, `List<Integer>`赋值给`List<?>`，却不能把`List<String>`赋值给`List<Object>`。譬如：
-```
+```java
 List<?> listOfAnyType;
 List<Object> listOfObject = new ArrayList<Object>();
 List<String> listOfString = new ArrayList<String>();
@@ -967,7 +967,7 @@ _n.`List<? extends T>`和`List <? super T>`之间有什么区别？_
 
 有时面试官会用这个问题来评估你对泛型的理解，而不是直接问你什么是限定通配符和非限定通配符，这两个`List`的声明都是限定通配符的例子，`List<? extends T>`可以接受任何继承自 T 的类型的`List`，而`List<? super T>`可以接受任何 T 的父类构成的`List`。
 例如`List<? extends Number>`可以接受`List<Integer>`或`List<Float>`。Java 容器类的实现中有很多这种用法，比如 Collections 中就有如下一些方法：
-```
+```java
 public static <T extends Comparable<? super T>> void sort(List<T> list)
 public static <T> void sort(List<T> list, Comparator<? super T> c)
 public static <T> void copy(List<? super T> dest, List<? extends T> src)
@@ -981,14 +981,14 @@ _o.`<T extends E>`和`<? extends E>`有什么关系？_
 它们用的地方不一样，`<T extends E>`用于定义类型参数，声明了一个类型参数 T，可放在泛型类定义中类名后面、泛型方法返回值前面。
 `<? extends E>`用于实例化类型参数，用于实例化泛型变量中的类型参数，只是这个具体类型是未知的，只知道它是 E 或 E 的某个子类型。
 虽然它们不一样，但两种写法经常可以达到相同的目的，譬如：
-```
+```java
 public void addAll(Bean<? extends E> c)
 public <T extends E> void addAll(Bean<T> c) 
 ```
 
 _p.解释下面程序执行情况和原因？_
 
-```
+```java
 DynamicArray<Integer> ints = new DynamicArray<>();
 DynamicArray<? extends Number> numbers = ints; 
 Integer a = 200;
