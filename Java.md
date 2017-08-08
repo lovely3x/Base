@@ -1010,34 +1010,28 @@ public void copyTo(DynamicArray<? super E> dest){
 最后方法的 add 是合法的，因为`<? super E>`形式与`<? extends E>`正好相反，超类型通配符表示 E 的某个父类型，有了它我们就可以更灵活的写入了。
 
 
-_q. Arraylist的大小是如何增加的？简单说说你理解的增加流程！_
+### **20.Arraylist 的动态扩容机制是如何自动增加的？简单说说你理解的增加流程！**
 
-下面代码展示为 `Java 1.8`
+解析：
 
-我们通过`ArraList.add` 方法添加元素时，内部会自动扩容，扩容流程如下：
-
+当在 ArrayList 中增加一个对象时 Java 会去检查 Arraylist 以确保已存在的数组中有足够的容量来存储这个新对象，如果没有足够容量就新建一个长度更长的数组（原来的1.5倍），旧的数组就会使用 Arrays.copyOf 方法被复制到新的数组中去，现有的数组引用指向了新的数组。下面代码展示为 `Java 1.8` 中通过 `ArraList.add` 方法添加元素时，内部会自动扩容，扩容流程如下：
+```java
 //确保容量够用，内部会尝试扩容，如果需要
-```ensureCapacityInternal(size + 1)```
+ensureCapacityInternal(size + 1)
 
-
-在未指定容量的情况下，容量为`DEFAULT_CAPACITY = 10 `
-并且在第一次使用时创建容器数组，在存储过一次数据后，数组的真实容量至少 `DEFAULT_CAPACITY`
-
-```java
+//在未指定容量的情况下，容量为DEFAULT_CAPACITY = 10
+//并且在第一次使用时创建容器数组，在存储过一次数据后，数组的真实容量至少DEFAULT_CAPACITY
  private void ensureCapacityInternal(int minCapacity) {
-        //判断当前的元素容器是否是初始的空数组
-        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+    //判断当前的元素容器是否是初始的空数组
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
         //如果是默认的空数组，则 minCapacity 至少为DEFAULT_CAPACITY
-            minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-        }
-
-        ensureExplicitCapacity(minCapacity);
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
     }
-```
 
-通过该方法进行真实准确扩容尝试的操作
+    ensureExplicitCapacity(minCapacity);
+}
 
-```java
+//通过该方法进行真实准确扩容尝试的操作
  private void ensureExplicitCapacity(int minCapacity) {
         modCount++;//记录List的结构修改的次数
 
@@ -1045,13 +1039,9 @@ _q. Arraylist的大小是如何增加的？简单说说你理解的增加流程�
         if (minCapacity - elementData.length > 0)
             grow(minCapacity);
 }
-```
 
-扩容操作
-
-```java
+//扩容操作
  private void grow(int minCapacity) {
- 
     //原来的容量
     int oldCapacity = elementData.length;
     
@@ -1072,3 +1062,98 @@ _q. Arraylist的大小是如何增加的？简单说说你理解的增加流程�
  }
 ```
 
+### **21.下面这些方法可以正常运行吗？为什么？**
+```java
+public void remove1(ArrayList<Integer> list) {
+    for(Integer a : list){
+        if(a <= 10){
+            list.remove(a);
+        }
+    }
+}
+
+public static void remove2(ArrayList<Integer> list) {
+    Iterator<Integer> it = list.iterator();
+    while(it.hasNext()){
+        if(it.next() <= 10) {
+            it.remove();
+        }
+    }
+}
+
+public static void remove3(ArrayList<Integer> list) {
+    Iterator<Integer> it = list.iterator();
+    while(it.hasNext()) {
+        it.remove();    
+    }
+}
+
+public static void remove4(ArrayList<Integer> list) {
+    Iterator<Integer> it = list.iterator();
+    while(it.hasNext()) {
+        it.next();
+        it.remove();
+        it.remove();
+    }
+}
+```
+
+解析：
+
+remove1 方法会抛出 ConcurrentModificationException 异常，这是迭代器的一个陷阱，foreach 遍历编译后实质会替换为迭代器实现，因为迭代器内部会维护一些索引位置数据，要求在迭代过程中容器不能发生结构性变化（添加、插入、删除，修改数据不算），否则这些索引位置数据就失效了，避免的方式就是使用迭代器的 remove 方法。
+
+remove2 方法可以正常运行，无任何错误。
+
+remove3 方法会抛出 IllegalStateException 异常，因为使用迭代器的 remove 方法前必须先调用 next 方法，next 方法会检测容器是否发生了结构性变化，然后更新 cursor 和 lastRet 值，直接不调用 next 而 remove 会导致相关值不正确。
+
+remove4 方法会抛出 IllegalStateException 异常，理由同 remove3，remove 调用一次后 lastRet 值会重置为 -1，没有调用 next 去设置 lastRet 的情况下再直接调一次 remove 自然就状态异常了。
+
+当然了，上面四个写法的具体官方解答可参见 ArrayList 中迭代器部分源码，如下：
+```java
+private class Itr implements Iterator<E> {
+	int cursor;       // index of next element to return
+	int lastRet = -1; // index of last element returned; -1 if no such
+	int expectedModCount = modCount;
+
+	public boolean hasNext() {
+		return cursor != size;
+	}
+
+	@SuppressWarnings("unchecked")
+	public E next() {
+		checkForComodification();
+		int i = cursor;
+		if (i >= size)
+			throw new NoSuchElementException();
+		Object[] elementData = ArrayList.this.elementData;
+		if (i >= elementData.length)
+			throw new ConcurrentModificationException();
+		cursor = i + 1;
+		return (E) elementData[lastRet = i];
+	}
+
+	public void remove() {
+		if (lastRet < 0)
+			throw new IllegalStateException();
+		checkForComodification();
+
+		try {
+			ArrayList.this.remove(lastRet);
+			cursor = lastRet;
+			lastRet = -1;
+			expectedModCount = modCount;
+		} catch (IndexOutOfBoundsException ex) {
+			throw new ConcurrentModificationException();
+		}
+	}
+
+	final void checkForComodification() {
+		if (modCount != expectedModCount)
+			throw new ConcurrentModificationException();
+	}
+}
+```
+
+### **22.简要解释下面程序的执行现象和结果？**
+
+明日续上。。。
