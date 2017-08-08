@@ -1182,3 +1182,6 @@ list.add(4);	//3 结果是什么？为什么？
 
 3 当然可以正常运行咯，不可变结构的 Arrays 的 ArraList 通过构造放入了真正的万能 ArraList，自然就可以操作咯。
 
+http://www.jfox.info/40-ge-java-ji-he-lei-mian-shi-ti-he-da-an.html
+http://www.importnew.com/22083.html
+http://www.importnew.com/22087.html
