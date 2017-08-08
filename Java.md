@@ -1010,3 +1010,65 @@ public void copyTo(DynamicArray<? super E> dest){
 最后方法的 add 是合法的，因为`<? super E>`形式与`<? extends E>`正好相反，超类型通配符表示 E 的某个父类型，有了它我们就可以更灵活的写入了。
 
 
+_q. Arraylist的大小是如何增加的？简单说说你理解的增加流程！_
+
+下面代码展示为 `Java 1.8`
+
+我们通过`ArraList.add` 方法添加元素时，内部会自动扩容，扩容流程如下：
+
+//确保容量够用，内部会尝试扩容，如果需要
+```ensureCapacityInternal(size + 1)```
+
+
+在未指定容量的情况下，容量为`DEFAULT_CAPACITY = 10 `
+并且在第一次使用时创建容器数组，在存储过一次数据后，数组的真实容量至少 `DEFAULT_CAPACITY`
+
+```java
+ private void ensureCapacityInternal(int minCapacity) {
+        //判断当前的元素容器是否是初始的空数组
+        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        //如果是默认的空数组，则 minCapacity 至少为DEFAULT_CAPACITY
+            minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+        }
+
+        ensureExplicitCapacity(minCapacity);
+    }
+```
+
+通过该方法进行真实准确扩容尝试的操作
+
+```java
+ private void ensureExplicitCapacity(int minCapacity) {
+        modCount++;//记录List的结构修改的次数
+
+        //需要扩容
+        if (minCapacity - elementData.length > 0)
+            grow(minCapacity);
+}
+```
+
+扩容操作
+
+```java
+ private void grow(int minCapacity) {
+ 
+    //原来的容量
+    int oldCapacity = elementData.length;
+    
+    //新的容量 = 原来的容量 + （原来的容量的一半）
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    
+    //如果计算的新的容量比指定的扩容容量小，那么就使用指定的容量
+    if (newCapacity - minCapacity < 0)
+        newCapacity = minCapacity;
+    
+    //如果新的容量大于MAX_ARRAY_SIZE(Integer.MAX_VALUE - 8)
+    //那么就使用hugeCapacity进行容量分配
+    if (newCapacity - MAX_ARRAY_SIZE > 0)
+        newCapacity = (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+    
+    //创建长度为newCapacity的数组，并复制原来的元素到新的容器，完成ArrayList的内部扩容
+    elementData = Arrays.copyOf(elementData, newCapacity);
+ }
+```
+
