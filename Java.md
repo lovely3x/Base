@@ -1155,5 +1155,30 @@ private class Itr implements Iterator<E> {
 ```
 
 ### **22.简要解释下面程序的执行现象和结果？**
+```java
+ArraList<Integer> list = new ArrayList<Integer>();
+list.add(1);
+list.add(2);
+list.add(3);
+Integer[] array1 = new Integer[3];
+list.toArray(array1);
+Integer[] array2 = list.toArray(new Integer[0]);
+System.out.println(Arrays.equals(array1, array2));	//1 结果是什么？为什么？
 
-明日续上。。。
+Integer[] array = {1, 2, 3};
+List<Integer> list = Arrays.asList(array);
+list.add(4);	//2 结果是什么？为什么？
+
+Integer[] array = {1, 2, 3};
+List<Integer> list = new ArraList<Integer>(Arrays.asList(array));
+list.add(4);	//3 结果是什么？为什么？
+```
+
+解析：
+
+1 输出为 true，因为 ArrayList 有两个方法可以返回数组`Object[] toArray()`和`<T> T[] toArray(T[] a)`，第一个方法返回的数组是通过 Arrays.copyOf 实现的，第二个方法如果参数数组长度足以容纳所有元素就使用参数数组，否则新建一个数组返回，所以结果为 true。
+
+2 会抛出 UnsupportedOperationException 异常，因为 Arrays 的 asList 方法返回的是一个 Arrays 内部类的 ArraList 对象，这个对象没有实现 add、remove 等方法，只实现了 set 等方法，所以通过 Arrays.asList 转换的列表不具备结构可变性。
+
+3 当然可以正常运行咯，不可变结构的 Arrays 的 ArraList 通过构造放入了真正的万能 ArraList，自然就可以操作咯。
+
