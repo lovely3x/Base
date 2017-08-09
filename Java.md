@@ -74,11 +74,11 @@ List<String>[] list = new List<String>[3];
 **结果：**
 
 存在。
-  
+
 **原因：**
 
 数值 `NaN` 代表 not a number，无法用于比较，例如即使是 `i = Double.NaN; j = i;` 最后 `i == j` 的结果依旧为 false。
-  
+
 考察点：Java NaN。
 
 ### **5.下面程序的运行结果是什么？**
@@ -140,7 +140,7 @@ Thread-0 this is 1
 3．Object sobj = new Object();   
 4．sobj = new Object();   
 ```
- 	
+
 6.3
 ```java
 1．Object aobj = new Object ( ) ;   
@@ -153,7 +153,7 @@ Thread-0 this is 1
 ```
 
 **结果及原因：**
- 
+
 6-1、第 3 行。因为第 3 行的 fobj 被赋了新值，产生了一个新的对象，即换了一块新的内存空间，也相当于为第 1 行中的 fobj 断开了引用，这种类型的题是最简单的。 
 
 6-2、第 2、4 行。因为第 2 行为 sobj 赋值为 null，所以在此第 1 行的 sobj 符合垃圾收集器的收集标准。而第 4 行相当于为 sobj 赋值为 null，所以在此第 3 行的 sobj 也符合垃圾收集器的收集标准。 
@@ -413,7 +413,7 @@ end
 
 ### **13.内部类你知多少？**
 java 内部类分为几种，各种自己有哪些特性？
- 
+
 **结果：**
 
 静态内部类，成员内部类，方法内部类，匿名内部类；
@@ -762,7 +762,7 @@ String string = new ArrayList<String>().get(0); // 返回类型就是 String
 
 ArrayList<String> arrayList4 = new ArrayList<Object>();	// 编译错误  
 ArrayList<Object> arrayList5 = new ArrayList<String>();	// 编译错误  
-```	
+```
 
 解释：
 
@@ -857,7 +857,7 @@ class Bean<T super Student> { //TODO }	//4
 解答：
 
 1 编译时报错，不能实例化泛型类型，类型擦除会使这个操作做成 new Object()。
-  
+
 2 编译时报错，不能创建泛型数组，擦除会使这个方法构造一个 Object[2] 数组。
 
 3 可以运行，可以用反射构造泛型对象和数组。
@@ -1014,7 +1014,7 @@ public void copyTo(DynamicArray<? super E> dest){
 
 解析：
 
-当在 ArrayList 中增加一个对象时 Java 会去检查 Arraylist 以确保已存在的数组中有足够的容量来存储这个新对象，如果没有足够容量就新建一个长度更长的数组（原来的1.5倍），旧的数组就会使用 Arrays.copyOf 方法被复制到新的数组中去，现有的数组引用指向了新的数组。下面代码展示为 `Java 1.8` 中通过 `ArraList.add` 方法添加元素时，内部会自动扩容，扩容流程如下：
+当在 ArrayList 中增加一个对象时 Java 会去检查 Arraylist 以确保已存在的数组中有足够的容量来存储这个新对象，如果没有足够容量就新建一个长度更长的数组（原来的1.5倍），旧的数组就会使用 Arrays.copyOf 方法被复制到新的数组中去，现有的数组引用指向了新的数组。下面代码展示为 `Java 1.8` 中通过 `ArrayList.add` 方法添加元素时，内部会自动扩容，扩容流程如下：
 ```java
 //确保容量够用，内部会尝试扩容，如果需要
 ensureCapacityInternal(size + 1)
